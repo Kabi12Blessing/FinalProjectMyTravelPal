@@ -532,7 +532,7 @@
                     <input type="password" name="confirm_password" placeholder="Confirm Password" required>
                     <button type="submit">REGISTER</button>
                     <label>
-                        <input type="checkbox" required> I agree to the <a style="margin-left:5px;" href="#">Terms and Conditions.</a>
+                        <input type="checkbox" required> I agree to the <a style="margin-left:5px;" href="#">Terms and Conditions</a>
                     </label>
                 </form>
                 <!-- Not necessary for now -->
