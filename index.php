@@ -535,11 +535,7 @@
                         <input type="checkbox" required> I agree to the <a style="margin-left:5px;" href="#">Terms and Conditions</a>
                     </label>
                 </form>
-                <!-- Not necessary for now -->
-                <!-- <div class="social-login">
-                    <button type="button" class="facebook">Register with Facebook</button>
-                    <button type="button" class="google">Register with Google</button>
-                </div> -->
+               
                 <div class="login-link">
                     <p>Already have an account? <a href="javascript:void(0)" onclick="openLoginModal()">Login here</a></p>
                 </div>
