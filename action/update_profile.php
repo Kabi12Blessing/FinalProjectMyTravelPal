@@ -19,11 +19,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     // Validate inputs
     if (empty($username) || empty($email)) {
-        header('Location: ../view/pages/dashboard.php?error=empty_fields');
+        header('Location: ../view/pages/Dashboard.php?error=empty_fields');
         exit();
     }
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        header('Location: ../view/pages/dashboard.php?error=invalid_email');
+        header('Location: ../view/pages/Dashboard.php?error=invalid_email');
         exit();
     }
 
@@ -39,12 +39,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Update session variables
         $_SESSION['username'] = $username;
         
-        header('Location: ../view/pages/dashboard.php?success=profile_updated');
+        header('Location: ../view/pages/Dashboard.php?success=profile_updated');
         exit();
     } catch (PDOException $e) {
         // Log the error instead of displaying it
         error_log('Database query failed: ' . $e->getMessage());
-        header('Location: ../view/pages/dashboard.php?error=update_failed');
+        header('Location: ../view/pages/Dashboard.php?error=update_failed');
         exit();
     }
 } else {
