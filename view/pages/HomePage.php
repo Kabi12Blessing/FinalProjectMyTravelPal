@@ -342,10 +342,10 @@ session_start();
         <div class="logo">TravelPal</div>
         <?php if (isset($_SESSION['username'])): ?>
             <div class="user-menu">
-                <a href="dashboard.php" class="dashboard">Dashboard</a>
+                <a href="Dashboard.php" class="dashboard">Dashboard</a>
                 <div class="username" onclick="toggleDropdown()">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></div>
                 <div class="dropdown">
-                    <a href="dashboard.php">Dashboard</a>
+                    <a href="Dashboard.php">Dashboard</a>
                     <a href="/MyTravelPal/action/logout.php">Log Out</a>
                 </div>
             </div>
