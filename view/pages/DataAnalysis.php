@@ -15,14 +15,14 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch the total number of matches for each origin-destination combination
+// Fetch the total number of accepted matches for each origin-destination combination
 $sql = "SELECT mt.origin_id, mt.destination_id, 
         c1.country_name AS origin_country, c2.country_name AS destination_country, 
         COUNT(mt.match_id) AS total_matches
         FROM Matches mt
         JOIN Countries c1 ON mt.origin_id = c1.country_id
         JOIN Countries c2 ON mt.destination_id = c2.country_id
-        WHERE mt.match_id LIKE :user_id_pattern
+        WHERE mt.match_id LIKE :user_id_pattern AND mt.status = 'accepted'
         GROUP BY mt.origin_id, mt.destination_id
         ORDER BY total_matches DESC";
 
@@ -48,7 +48,7 @@ $total_trips = array_sum(array_column($matches_summary, 'total_matches'));
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Analysis</title>
     <style>
-            :root {
+        :root {
             --primary-color: #007BFF;
             --background-color: #f5f7fa;
             --dark-background-color: #121212;
@@ -65,19 +65,6 @@ $total_trips = array_sum(array_column($matches_summary, 'total_matches'));
             background-color: var(--background-color);
             color: var(--text-color);
         }
-
-
-        .profile-picture {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 20px;
-        }
-        .dark-mode .profile-picture {
-            border: 2px solid var(--dark-text-color);
-        }
-
         .dark-mode {
             background-color: var(--dark-background-color);
             color: var(--dark-text-color);
@@ -140,7 +127,7 @@ $total_trips = array_sum(array_column($matches_summary, 'total_matches'));
             align-items: center;
             position: relative;
         }
-        .header .dashboard, .header .create-trip, .header .view-travelers, .header .dark-mode-toggle {
+        .header .dashboard, .header .view-travelers, .header .dark-mode-toggle {
             color: white;
             font-weight: bold;
             text-decoration: none;
@@ -152,7 +139,7 @@ $total_trips = array_sum(array_column($matches_summary, 'total_matches'));
             background: rgba(255, 255, 255, 0.1);
             border-radius: 5px;
         }
-        .header .dashboard:hover, .header .create-trip:hover, .header .view-travelers:hover, .header .dark-mode-toggle:hover {
+        .header .dashboard:hover, .header .view-travelers:hover, .header .dark-mode-toggle:hover {
             background-color: rgba(255, 255, 255, 0.3);
         }
         .header .username {
@@ -247,23 +234,6 @@ $total_trips = array_sum(array_column($matches_summary, 'total_matches'));
             flex-direction: column;
             gap: 20px;
         }
-  
-        .main-content {
-            margin-top: 70px;
-            padding: 20px;
-        }
-        .section {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .section h2 {
-            font-size: 28px;
-            margin-bottom: 20px;
-        }
         .data-table {
             width: 100%;
             border-collapse: collapse;
@@ -297,111 +267,11 @@ $total_trips = array_sum(array_column($matches_summary, 'total_matches'));
         .footer a:hover {
             text-decoration: underline;
         }
-        .hidden {
-            display: none;
-        }
-        .profile-picture {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 20px;
-        }
-        .dark-mode .profile-picture {
-            border: 2px solid var(--dark-text-color);
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: white;
-            margin: auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 600px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-        }
-        .dark-mode .modal-content {
-            background-color: var(--dark-card-bg-color);
-        }
-        .close {
-            color: #aaa;
-            align-self: flex-end;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .dark-mode .close {
-            color: var(--dark-text-color);
-        }
-        .modal-content form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .modal-content label {
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        .modal-content input,
-        .modal-content textarea,
-        .modal-content select {
-            padding: 5px;
-            margin-top: 5px;
-            border-radius: 5px;
-            border: 3px solid #ccc;
-            font-size: 16px;
-            width: 100%;
-        }
-        .modal-content .radio-group {
-            display: flex;
-            flex-direction: row;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .modal-content .radio-group label {
-            margin: 1;
-        }
-        .modal-content button {
-            margin-top: 20px;
-            padding: 10px;
-            font-size: 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            background-color: var(--primary-color);
-            color: white;
-        }
-        .modal-content button:hover {
-            background-color: #0056b3;
-        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-<div class="header">
+    <div class="header">
         <div class="logo">TravelPal</div>
         <?php if (isset($_SESSION['username'])): ?>
             <div class="user-menu">
@@ -477,6 +347,7 @@ $total_trips = array_sum(array_column($matches_summary, 'total_matches'));
                 }
             }
         });
+        
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
             // Save dark mode preference in local storage
@@ -499,9 +370,6 @@ $total_trips = array_sum(array_column($matches_summary, 'total_matches'));
             dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
         }
 
-
-      
-
         // Close the dropdown if the user clicks outside of it
         window.onclick = function(event) {
             if (!event.target.matches('.username')) {
@@ -513,9 +381,10 @@ $total_trips = array_sum(array_column($matches_summary, 'total_matches'));
                     }
                 }
             }
-
         }
     </script>
-     
+    <div class="footer">
+        <p>&copy; 2024 TravelPal. All rights reserved. | <a href="/view/privacy-policy.php">Privacy Policy</a> | <a href="/view/terms-of-service.php">Terms of Service</a></p>
+    </div>
 </body>
 </html>
