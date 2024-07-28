@@ -13,100 +13,42 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Get the conversation_id, preference_id, and receiver_id from the URL
-$conversation_id = isset($_GET['conversation_id']) ? $_GET['conversation_id'] : null;
-$preference_id = isset($_GET['preference_id']) ? intval($_GET['preference_id']) : 0;
-$receiver_id = isset($_GET['receiver_id']) ? intval($_GET['receiver_id']) : 0;
-$sender_id = isset($_SESSION['user_id']) ? intval($_SESSION['user_id']) : 0;
+$user_id = $_SESSION['user_id'];
 
-if (!$conversation_id) {
-    echo 'Invalid conversation.';
-    exit();
-}
-
-// SQL query to fetch messages for the specified conversation ID
-$sql = "SELECT m.*, u.username AS sender_username, u.profile_picture AS sender_profile_pic
-        FROM Messages m
-        JOIN Users u ON m.sender_id = u.user_id
-        WHERE m.conversation_id = :conversation_id
-        ORDER BY m.sent_at ASC";
+// Fetch the total number of matches for each origin-destination combination
+$sql = "SELECT mt.origin_id, mt.destination_id, 
+        c1.country_name AS origin_country, c2.country_name AS destination_country, 
+        COUNT(mt.match_id) AS total_matches
+        FROM Matches mt
+        JOIN Countries c1 ON mt.origin_id = c1.country_id
+        JOIN Countries c2 ON mt.destination_id = c2.country_id
+        WHERE mt.match_id LIKE :user_id_pattern
+        GROUP BY mt.origin_id, mt.destination_id
+        ORDER BY total_matches DESC";
 
 try {
     $stmt = $conn->prepare($sql);
-    $stmt->bindValue(':conversation_id', $conversation_id, PDO::PARAM_STR);
+    $user_id_pattern = '%' . $user_id . '%';
+    $stmt->bindParam(':user_id_pattern', $user_id_pattern, PDO::PARAM_STR);
     $stmt->execute();
-    $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $matches_summary = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     echo 'Query failed: ' . $e->getMessage();
     exit();
 }
 
-// Function to convert absolute path to web-accessible relative path
-function convertPathToWeb($absolutePath) {
-    $documentRoot = '/Applications/XAMPP/xamppfiles/htdocs/';
-    $baseUrl = '/'; // Adjust this to your base URL if necessary
-
-    if (strpos($absolutePath, $documentRoot) === 0) {
-        return $baseUrl . substr($absolutePath, strlen($documentRoot));
-    }
-
-    return $absolutePath; // Return as is if it doesn't match
-}
-
-// Handle new message submission
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $message_text = $_POST['message_text'];
-    if (!empty($message_text)) {
-        // Fetch the last message's sender_id and receiver_id for the given conversation_id
-        $sql_last_message = "SELECT sender_id, receiver_id FROM Messages WHERE conversation_id = :conversation_id ORDER BY sent_at DESC LIMIT 1";
-        $stmt_last_message = $conn->prepare($sql_last_message);
-        $stmt_last_message->bindValue(':conversation_id', $conversation_id, PDO::PARAM_STR);
-        $stmt_last_message->execute();
-        $last_message = $stmt_last_message->fetch(PDO::FETCH_ASSOC);
-        $last_message_sender_id = $last_message['sender_id'] ?? null;
-        $last_message_receiver_id = $last_message['receiver_id'] ?? null;
-
-        // Determine the correct sender and receiver IDs based on the last message
-        if ($last_message_receiver_id === $sender_id) {
-            // Current user was the receiver in the last message, so now they are the sender
-            $new_sender_id = $sender_id;
-            $new_receiver_id = $last_message_sender_id;
-        } else {
-            // Otherwise, maintain the current user as the sender and the other as the receiver
-            $new_sender_id = $sender_id;
-            $new_receiver_id = $last_message_receiver_id;
-        }
-
-        // Insert the new message with the determined roles
-        $sql = "INSERT INTO Messages (conversation_id, sender_id, receiver_id, message_text, preference_id) VALUES (:conversation_id, :sender_id, :receiver_id, :message_text, :preference_id)";
-        try {
-            $stmt = $conn->prepare($sql);
-            $stmt->bindValue(':conversation_id', $conversation_id, PDO::PARAM_STR);
-            $stmt->bindValue(':sender_id', $new_sender_id, PDO::PARAM_INT);
-            $stmt->bindValue(':receiver_id', $new_receiver_id, PDO::PARAM_INT);
-            $stmt->bindValue(':message_text', $message_text, PDO::PARAM_STR);
-            $stmt->bindValue(':preference_id', $preference_id, PDO::PARAM_INT);
-            $stmt->execute();
-
-            // Redirect to the same page with updated receiver_id
-            header("Location: message_thread.php?conversation_id=$conversation_id&preference_id=$preference_id&receiver_id=$new_receiver_id");
-            exit();
-        } catch (PDOException $e) {
-            echo 'Message sending failed: ' . $e->getMessage();
-        }
-    }
-}
+// Calculate the total number of trips
+$total_trips = array_sum(array_column($matches_summary, 'total_matches'));
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Message Thread</title>
+    <title>Data Analysis</title>
     <style>
-        :root {
+            :root {
             --primary-color: #007BFF;
             --background-color: #f5f7fa;
             --dark-background-color: #121212;
@@ -114,16 +56,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             --dark-text-color: #f5f7fa;
             --card-bg-color: white;
             --dark-card-bg-color: #1e1e1e;
-            --sender-bg-color: #e7f0fe;
-            --receiver-bg-color: #dcf8c6;
         }
         body, html {
             height: 100%;
             margin: 0;
             font-family: 'Roboto', sans-serif;
+            scroll-behavior: smooth;
             background-color: var(--background-color);
             color: var(--text-color);
         }
+
+
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+        .dark-mode .profile-picture {
+            border: 2px solid var(--dark-text-color);
+        }
+
         .dark-mode {
             background-color: var(--dark-background-color);
             color: var(--dark-text-color);
@@ -259,7 +213,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             margin-left: 250px;
             padding: 80px 20px 20px;
             transition: filter 0.3s;
-            min-height: calc(100vh - 120px); /* Account for header and footer height */
         }
         .section {
             max-width: 1200px;
@@ -268,6 +221,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             background: var(--card-bg-color);
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 50px;
         }
         .dark-mode .section {
             background: var(--dark-card-bg-color);
@@ -276,82 +230,65 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             font-size: 28px;
             margin-bottom: 20px;
             color: var(--text-color);
+            cursor: pointer; /* Make the header look clickable */
         }
         .dark-mode .section h2 {
             color: var(--dark-text-color);
         }
-        .message-container {
+        .section p {
+            font-size: 18px;
+            color: #666;
+        }
+        .dark-mode .section p {
+            color: var(--dark-text-color);
+        }
+        .dashboard-section {
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
-        .message {
-            border-radius: 10px;
+  
+        .main-content {
+            margin-top: 70px;
             padding: 20px;
-            display: flex;
-            gap: 20px;
+        }
+        .section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        .message.sender {
-            background: var(--sender-bg-color);
-            align-self: flex-start;
+        .section h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
         }
-        .message.receiver {
-            background: var(--receiver-bg-color);
-            align-self: flex-end;
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
         }
-        .message .profile-pic {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            object-fit: cover;
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
         }
-        .message-content {
-            flex: 1;
-        }
-        .message .sender-name {
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-        .message .message-text {
-            margin-bottom: 10px;
-            color: var(--text-color);
-        }
-        .message .timestamp {
-            font-size: 12px;
-            color: #999;
-        }
-        .message-input {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .message-input textarea {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            resize: none;
-        }
-        .message-input button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            background-color: var(--primary-color);
+        .data-table th {
+            background-color: #007BFF;
             color: white;
-            cursor: pointer;
         }
-        .message-input button:hover {
-            background-color: #0056b3;
+        .total-trips {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .chart-container {
+            margin-top: 50px;
         }
         .footer {
             background-color: #333;
             color: white;
             text-align: center;
             padding: 20px 0;
-            position: fixed;
-            width: 100%;
-            bottom: 0;
         }
         .footer a {
             color: var(--primary-color);
@@ -360,21 +297,121 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .footer a:hover {
             text-decoration: underline;
         }
+        .hidden {
+            display: none;
+        }
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+        .dark-mode .profile-picture {
+            border: 2px solid var(--dark-text-color);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .dark-mode .modal-content {
+            background-color: var(--dark-card-bg-color);
+        }
+        .close {
+            color: #aaa;
+            align-self: flex-end;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .dark-mode .close {
+            color: var(--dark-text-color);
+        }
+        .modal-content form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .modal-content label {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .modal-content input,
+        .modal-content textarea,
+        .modal-content select {
+            padding: 5px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 3px solid #ccc;
+            font-size: 16px;
+            width: 100%;
+        }
+        .modal-content .radio-group {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .modal-content .radio-group label {
+            margin: 1;
+        }
+        .modal-content button {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .modal-content button:hover {
+            background-color: #0056b3;
+        }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="header">
+<div class="header">
         <div class="logo">TravelPal</div>
         <?php if (isset($_SESSION['username'])): ?>
             <div class="user-menu">
                 <a href="HomePage.php" class="dashboard">HomePage</a>
-                <a href="Dashboard.php" class="dashboard">Dashboard</a>
                 <a href="view_travelers.php" class="view-travelers">View All Travelers</a>
                 <button class="dark-mode-toggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
                 <div class="username" onclick="toggleDropdown()">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></div>
                 <div class="dropdown">
                     <a href="Dashboard.php">Profile</a>
-                    <a href="/Travel_Pal/action/logout.php">Log Out</a>
+                    <a href="/MyTravelPal/action/logout.php">Log Out</a>
                 </div>
             </div>
         <?php else: ?>
@@ -382,41 +419,64 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <?php endif; ?>
     </div>
     <div class="sidebar">
-        <a href="Dashboard.php"><i class="fas fa-envelope"></i> Dashboard</a>
         <a href="messages.php"><i class="fas fa-envelope"></i> Messages</a>
-        <a href="DataAnalysis.php"><i class="fas fa-user"></i> Data Analysis</a>
+        <a href="Dashboard.php"><i class="fas fa-user"></i>Dashboard</a>
     </div>
     <div class="main-content">
         <div class="section">
-            <h2>Message Thread</h2>
-            <div class="message-container">
-                <?php foreach ($messages as $message): ?>
-                    <div class="message <?= ($message['sender_id'] == $sender_id) ? 'sender' : 'receiver' ?>">
-                        <img src="<?= htmlspecialchars(convertPathToWeb($message['sender_profile_pic'] ?? 'default_profile_picture.jpg')) ?>" alt="Profile Picture" class="profile-pic">
-                        <div class="message-content">
-                            <span class="sender-name"><?= htmlspecialchars($message['sender_username']) ?></span>
-                            <p class="message-text"><?= htmlspecialchars($message['message_text']) ?></p>
-                            <span class="timestamp"><?= htmlspecialchars($message['sent_at']) ?></span>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
+            <h2>Matches Summary</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Origin Country</th>
+                        <th>Destination Country</th>
+                        <th>Total Matches</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($matches_summary as $summary): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($summary['origin_country']) ?></td>
+                            <td><?= htmlspecialchars($summary['destination_country']) ?></td>
+                            <td><?= htmlspecialchars($summary['total_matches']) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            <div class="total-trips">
+                Total Number of Trips: <?= $total_trips ?>
             </div>
-            <form class="message-input" method="POST" action="">
-                <textarea name="message_text" rows="3" placeholder="Type your message here..."></textarea>
-                <input type="hidden" name="receiver_id" value="<?= $receiver_id ?>">
-                <button type="submit">Send</button>
-            </form>
+            <div class="chart-container">
+                <canvas id="matchesChart"></canvas>
+            </div>
         </div>
     </div>
-    <!-- <div class="footer">
-        <p>&copy; 2024 TravelPal. All rights reserved. | <a href="/view/privacy-policy.php">Privacy Policy</a> | <a href="/view/terms-of-service.php">Terms of Service</a></p>
-    </div> -->
-    <script>
-        function toggleDropdown() {
-            var dropdown = document.querySelector('.dropdown');
-            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-        }
 
+    <script>
+        var ctx = document.getElementById('matchesChart').getContext('2d');
+        var matchesChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: <?= json_encode(array_map(function($item) {
+                    return $item['origin_country'] . ' to ' . $item['destination_country'];
+                }, $matches_summary)) ?>,
+                datasets: [{
+                    label: 'Total Matches',
+                    data: <?= json_encode(array_column($matches_summary, 'total_matches')) ?>,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
             // Save dark mode preference in local storage
@@ -434,6 +494,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         });
 
+        function toggleDropdown() {
+            var dropdown = document.querySelector('.dropdown');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+
+      
+
         // Close the dropdown if the user clicks outside of it
         window.onclick = function(event) {
             if (!event.target.matches('.username')) {
@@ -445,7 +513,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     }
                 }
             }
+
         }
     </script>
+     
 </body>
 </html>

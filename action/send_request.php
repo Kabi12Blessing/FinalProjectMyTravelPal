@@ -18,9 +18,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $message_text = $_POST['message'];
     $sender_id = $_SESSION['user_id'];
     
-    // Fetch the receiver's user_id based on preference_id
+    // Fetch the receiver's user_id and other details based on preference_id
     $receiver_id = null;
-    $sql_receiver = "SELECT user_id FROM Travel_Preferences WHERE preference_id = :preference_id";
+    $origin_id = null;
+    $destination_id = null;
+    $sql_receiver = "SELECT user_id, origin_country_id, destination_country_id 
+                     FROM Travel_Preferences WHERE preference_id = :preference_id";
     try {
         $stmt_receiver = $conn->prepare($sql_receiver);
         $stmt_receiver->bindParam(':preference_id', $preference_id, PDO::PARAM_INT);
@@ -28,6 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $result = $stmt_receiver->fetch(PDO::FETCH_ASSOC);
         if ($result) {
             $receiver_id = $result['user_id'];
+            $origin_id = $result['origin_country_id'];
+            $destination_id = $result['destination_country_id'];
         }
     } catch (PDOException $e) {
         echo 'Query failed: ' . $e->getMessage();
@@ -73,7 +78,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt_insert->bindParam(':message_text', $message_text, PDO::PARAM_STR);
             $stmt_insert->bindParam(':preference_id', $preference_id, PDO::PARAM_INT);
             $stmt_insert->execute();
-            
+
+            // Insert into Matches table
+            $match_id = min($sender_id, $receiver_id) . max($sender_id, $receiver_id) . $preference_id; // Creating a match_id from user IDs and preference ID
+            $sql_match = "INSERT INTO Matches (match_id, user_needing_space_id, user_with_extra_space_id, score, status, origin_id, destination_id) 
+                          VALUES (:match_id, :user_needing_space_id, :user_with_extra_space_id, 0, 'pending', :origin_id, :destination_id)";
+            try {
+                $stmt_match = $conn->prepare($sql_match);
+                $stmt_match->bindParam(':match_id', $match_id, PDO::PARAM_STR); // match_id is now a string
+                $stmt_match->bindParam(':user_needing_space_id', $sender_id, PDO::PARAM_INT);
+                $stmt_match->bindParam(':user_with_extra_space_id', $receiver_id, PDO::PARAM_INT);
+                $stmt_match->bindParam(':origin_id', $origin_id, PDO::PARAM_INT);
+                $stmt_match->bindParam(':destination_id', $destination_id, PDO::PARAM_INT);
+                $stmt_match->execute();
+            } catch (PDOException $e) {
+                echo 'Error inserting match: ' . $e->getMessage();
+                exit();
+            }
+
             // Redirect with success flag
             header('Location: ../view/pages/trip_details.php?preference_id=' . $preference_id . '&message=success');
             exit();

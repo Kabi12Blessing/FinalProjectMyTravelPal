@@ -342,10 +342,10 @@ session_start();
         <div class="logo">TravelPal</div>
         <?php if (isset($_SESSION['username'])): ?>
             <div class="user-menu">
-                <a href="Dashboard.php" class="dashboard">Dashboard</a>
+                <a href="dashboard.php" class="dashboard">Dashboard</a>
                 <div class="username" onclick="toggleDropdown()">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></div>
                 <div class="dropdown">
-                    <a href="Dashboard.php">Dashboard</a>
+                    <a href="dashboard.php">Dashboard</a>
                     <a href="/MyTravelPal/action/logout.php">Log Out</a>
                 </div>
             </div>
@@ -392,28 +392,48 @@ session_start();
             <h2 >Popular Countries</h2>
             <div class="categories">
                 <div class="category">
-                    <img src="country1.jpg" alt="Country 1">
-                    <h3>Country 1</h3>
+                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/CAMEROON.png" alt="Country 1">
+                    <h3>Cameroon</h3>
                 </div>
                 <div class="category">
-                    <img src="country2.jpg" alt="Country 2">
-                    <h3>Country 2</h3>
+                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/CANADA.png" alt="Country 2">
+                    <h3>Canada</h3>
                 </div>
                 <div class="category">
-                    <img src="country3.jpg" alt="Country 3">
-                    <h3>Country 3</h3>
+                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/FRANCE.png" alt="Country 3">
+                    <h3>France</h3>
                 </div>
                 <div class="category">
-                    <img src="country4.jpg" alt="Country 4">
-                    <h3>Country 4</h3>
+                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/GHANA.png" alt="Country 4">
+                    <h3>Ghana</h3>
                 </div>
                 <div class="category">
-                    <img src="country5.jpg" alt="Country 5">
-                    <h3>Country 5</h3>
+                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/KENYA.png" alt="Country 5">
+                    <h3>Kenya</h3>
+                </div>
+                <div class="category">
+                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/LONDON.png" alt="Country 2">
+                    <h3>London</h3>
+                </div>
+                <div class="category">
+                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/NIGERIA.png" alt="Country 3">
+                    <h3>Nigeria</h3>
+                </div>
+                <div class="category">
+                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/NORWAY.png" alt="Country 4">
+                    <h3>Norway</h3>
+                </div>
+                <div class="category">
+                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/SOUTHAFRICA.png" alt="Country 5">
+                    <h3>South Africa</h3>
+                </div>
+                <div class="category">
+                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/USA.png" alt="Country 5">
+                    <h3>USA</h3>
                 </div>
             </div>
         </div>
-        <div style= "background: linear-gradient(to right, #1E90FF, #80BFFF); border-radius: 10px;
+        <!-- <div style= "background: linear-gradient(to right, #1E90FF, #80BFFF); border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);" class="section">
             <h2> Travelling This Week</h2>
             <div class="travelling-this-week">
@@ -443,27 +463,9 @@ session_start();
                     <p>Destination: London</p>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
-    <div class="testimonial-section">
-        <h2>User Testimonials</h2>
-        <div class="testimonial-slider">
-            <div class="testimonial">
-                <img src="user1.jpg" alt="User 1">
-                <p>"TravelPal made it so easy to send a package to my friend across the country. The traveler I connected with was friendly and reliable. Highly recommend!"</p>
-                <h3>- Jane Doe</h3>
-            </div>
-            <div class="testimonial">
-                <img src="user2.jpg" alt="User 2">
-                <p>"As a frequent traveler, I love being able to help others by carrying their packages. TravelPal has made my journeys more enjoyable and meaningful."</p>
-                <h3>- John Smith</h3>
-            </div>
-            <div class="testimonial">
-                <img src="user3.jpg" alt="User 3">
-                <p>"The verification process gave me peace of mind. Knowing that I can track my package every step of the way is a game-changer."</p>
-                <h3>- Sarah Lee</h3>
-            </div>
-        </div>
+
     </div>
     <div class="newsletter-section">
         <div class="newsletter">

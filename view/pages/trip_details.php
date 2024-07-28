@@ -417,12 +417,11 @@ function convertPathToWeb($absolutePath) {
             <div class="user-menu">
                 <a href="HomePage.php" class="dashboard">HomePage</a>
                 <a href="Dashboard.php" class="dashboard">Dashboard</a>
-                <button class="create-trip" onclick="toggleModal()">Create New Trip</button>
                 <a href="view_travelers.php" class="view-travelers">View All Travelers</a>
                 <button class="dark-mode-toggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
                 <div class="username" onclick="toggleDropdown()">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></div>
                 <div class="dropdown">
-                    <a href="profile.php">Profile</a>
+                    <a href="Dashboard.php">Profile</a>
                     <a href="/MyTravelPal/action/logout.php">Log Out</a>
                 </div>
             </div>
@@ -431,9 +430,10 @@ function convertPathToWeb($absolutePath) {
         <?php endif; ?>
     </div>
     <div class="sidebar">
-        <a href="dashboard.php"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="Dashboard.php"><i class="fas fa-envelope"></i> Dashboard</a>
         <a href="messages.php"><i class="fas fa-envelope"></i> Messages</a>
-        <a href="profile.php"><i class="fas fa-user"></i> Profile</a>
+        <a href="DataAnalysis.php"><i class="fas fa-user"></i> Data Analysis</a>
+
     </div>
     <div class="main-content">
         <div class="section">
