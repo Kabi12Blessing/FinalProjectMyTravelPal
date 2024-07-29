@@ -530,7 +530,7 @@ function convertPathToWeb($absolutePath) {
                                 <p>Preferred Gender: <?= htmlspecialchars($trip['preferences']) ?></p>
                                 <button class="btn" onclick="openEditTripModal(<?= $trip['preference_id']; ?>)">Update</button>
                                 <button class="btn" onclick="deleteTrip(<?= $trip['preference_id']; ?>)">Delete</button>
-                                <button class="btn">Find a Travel Match</button>
+                                <button class="btn" onclick="redirectToTravelers()">Find a Travel Match</button>
                             </div>
                         </div>
                     </div>
@@ -895,27 +895,34 @@ function convertPathToWeb($absolutePath) {
             $('#editTripModal').css('display', 'none');
         }
 
-        function deleteTrip(preferenceId) {
-            if (confirm('Are you sure you want to delete this trip?')) {
+        function deleteProfilePicture() {
+            if (confirm('Are you sure you want to delete your profile picture?')) {
                 $.ajax({
-                    url: '../../../MyTravelPal/action/delete_trip.php',
-                    type: 'GET',
-                    data: { preference_id: preferenceId },
+                    url: '../../action/delete_profile_picture.php',
+                    type: 'POST',
                     success: function(response) {
-                        if (response.trim() === 'success') {
-                            $('#trip-' + preferenceId).remove();
-                            alert('Trip deleted successfully');
+                        var result = JSON.parse(response);
+                        if (result.status === 'success') {
+                            alert('Profile picture deleted successfully.');
+                            // Update the profile picture to default
+                            var defaultAvatar = 'https://rawcdn.githack.com/Kabi12Blessing/72892025_ChurningPrediction/c2e416446c7e05056259be4e948de42f070a8e6c/266033.png';
+                            document.querySelector('.profile-picture').src = defaultAvatar;
                         } else {
-                            alert('Failed to delete trip');
+                            alert('Error: ' + result.message);
                         }
                     },
                     error: function(xhr, status, error) {
-                        console.error('AJAX Error:', error);
-                        alert('An error occurred while deleting the trip.');
+                        console.error(xhr.responseText);
+                        alert('An error occurred while deleting the profile picture.');
                     }
                 });
             }
         }
+
+        function redirectToTravelers() {
+        window.location.href = 'view_travelers.php';
+    }
+
 
 
         function toggleTripDetails(element) {
