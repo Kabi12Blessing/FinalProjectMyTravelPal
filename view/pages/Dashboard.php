@@ -922,6 +922,27 @@ function convertPathToWeb($absolutePath) {
         function redirectToTravelers() {
         window.location.href = 'view_travelers.php';
     }
+    function deleteTrip(preferenceId) {
+    if (confirm('Are you sure you want to delete this trip?')) {
+        $.ajax({
+            url: '../../../MyTravelPal/action/delete_trip.php', // Correct path to the PHP script
+            type: 'GET',
+            data: { preference_id: preferenceId },
+            success: function(response) {
+                if (response.trim() === 'success') {
+                    $('#trip-' + preferenceId).remove(); // Remove the trip from the DOM
+                    alert('Trip deleted successfully.');
+                } else {
+                    alert('Failed to delete the trip.');
+                }
+            },
+            error: function() {
+                alert('Error occurred while deleting the trip.');
+            }
+        });
+    }
+}
+
 
 
 
