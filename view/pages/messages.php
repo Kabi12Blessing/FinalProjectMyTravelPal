@@ -341,7 +341,7 @@ function convertPathToWeb($absolutePath) {
                 <div class="username" onclick="toggleDropdown()">Welcome, <?php echo htmlspecialchars($_SESSION['username']); ?></div>
                 <div class="dropdown">
                     <a href="Dashboard.php">Profile</a>
-                    <a href="/Travel_Pal/action/logout.php">Log Out</a>
+                    <a href="/MyTravelPal/action/logout.php">Log Out</a>
                 </div>
             </div>
         <?php else: ?>

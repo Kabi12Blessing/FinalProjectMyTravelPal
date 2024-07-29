@@ -2,7 +2,7 @@
 $host = 'localhost';
 $db   = 'travelpal';
 $user = 'root';
-$pass = '';
+$pass = ':G.c307HWOrA';
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
