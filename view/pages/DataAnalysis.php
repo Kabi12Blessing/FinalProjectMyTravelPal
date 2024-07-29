@@ -314,7 +314,7 @@ $total_trips = array_sum(array_column($matches_summary, 'total_matches'));
                 </tbody>
             </table>
             <div class="total-trips">
-                Total Number of Trips: <?= $total_trips ?>
+                Total Number of matched Trips: <?= $total_trips ?>
             </div>
             <div class="chart-container">
                 <canvas id="matchesChart"></canvas>

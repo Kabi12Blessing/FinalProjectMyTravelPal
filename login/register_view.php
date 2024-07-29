@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,27 +9,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - TravelPal</title>
     <style>
-        .modal {
-            display: block; /* Visible by default */
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .background {
             position: fixed;
-            z-index: 1001; /* Sit on top */
-            left: 0;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgb(0,0,0); /* Fallback color */
-            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            background-image: url('https://rawcdn.githack.com/BlessingLeslie/TravelPalImages/f3fa5a30650b6390c7e41a26ff7550836e3a6f24/DALL%C2%B7E%202024-06-11%2000.17.43%20-%20A%20highly%20realistic%20airport%20scene%20featuring%20two%20Black%20people.%20One%20person%20is%20sharing%20an%20item%20with%20another%20traveler%20who%20has%20extra%20luggage.%20The%20traveler%20i.webp');
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.5); /* Darken the image */
+            z-index: -1;
+        }
+
+        .hero-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7); /* Darker overlay */
+            z-index: -1;
+        }
+
+        .modal {
+            display: block;
+            position: relative;
+            z-index: 1001;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .modal-content {
             background-color: #fefefe;
-            margin: 10% auto; /* Centered */
+            margin: 10% auto;
             padding: 20px;
             border: 1px solid #888;
-            width: 80%; /* Could be more or less, depending on screen size */
-            max-width: 400px; /* Ensure a max width */
+            width: 80%;
+            max-width: 400px;
             border-radius: 10px;
+            position: relative;
+            z-index: 2;
         }
 
         .modal-header, .modal-footer {
@@ -47,13 +85,13 @@
             float: right;
             font-size: 28px;
             font-weight: bold;
+            cursor: pointer;
         }
 
         .close:hover,
         .close:focus {
             color: black;
             text-decoration: none;
-            cursor: pointer;
         }
 
         .modal-body input[type="text"],
@@ -81,25 +119,6 @@
 
         .modal-body button:hover {
             background-color: #0056b3;
-        }
-
-        .modal-body .social-login {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .modal-body .social-login button {
-            width: 48%;
-            background-color: #3b5998; /* Facebook color */
-            color: white;
-        }
-
-        .modal-body .social-login button.google {
-            background-color: #db4a39; /* Google color */
-        }
-
-        .modal-body .social-login button:hover {
-            opacity: 0.8;
         }
 
         .modal-body label {
@@ -134,6 +153,8 @@
     </style>
 </head>
 <body>
+    <div class="background"></div>
+    <div class="hero-overlay"></div>
     <div id="registerModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -142,24 +163,29 @@
             </div>
             <div class="modal-body">
                 <?php
-                if (isset($_GET['error'])) {
-                    echo '<div class="error-message">' . htmlspecialchars($_GET['error']) . '</div>';
+                if (isset($_SESSION['errors'])) {
+                    echo '<div class="error-message">';
+                    foreach ($_SESSION['errors'] as $error) {
+                        echo "<p>$error</p>";
+                    }
+                    echo '</div>';
+                    unset($_SESSION['errors']); // Clear errors after displaying
                 }
+
+                $username = $_SESSION['form_data']['username'] ?? '';
+                $email = $_SESSION['form_data']['email'] ?? '';
+                unset($_SESSION['form_data']); // Clear form data after using
                 ?>
                 <form action="../action/register_user_action.php" method="post">
-                    <input type="text" name="username" placeholder="Username" required>
-                    <input type="email" name="email" placeholder="Email" required>
+                    <input type="text" name="username" placeholder="Username" required value="<?php echo htmlspecialchars($username); ?>">
+                    <input type="email" name="email" placeholder="Email" required value="<?php echo htmlspecialchars($email); ?>">
                     <input type="password" name="password" placeholder="Password" required>
                     <input type="password" name="confirm_password" placeholder="Confirm Password" required>
                     <button type="submit">REGISTER</button>
                     <label>
-                        <input type="checkbox" required> I agree to the <a style="margin-left:5px;" href="#"> Terms and Conditions</a>
+                        <input type="checkbox" required> I agree to the <a style="margin-left:5px;" href="#">Terms and Conditions</a>
                     </label>
                 </form>
-                <!-- <div class="social-login">
-                    <button type="button" class="facebook">Register with Facebook</button>
-                    <button type="button" class="google">Register with Google</button>
-                </div> -->
                 <div class="login-link">
                     <p>Already have an account? <a href="login_view.php">Login here</a></p>
                 </div>

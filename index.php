@@ -29,6 +29,10 @@
             font-weight: bold;
             color: white;
         }
+        .header .button-group {
+            display: flex;
+            align-items: center;
+        }
         .header .login, .header .find-traveler {
             padding: 10px 20px;
             background-color: #007BFF;
@@ -37,8 +41,11 @@
             border-radius: 5px;
             text-decoration: none;
             font-size: 16px;
-            margin-right: 10px;
+            margin-left: 10px;
             cursor: pointer;
+        }
+        .header .login:first-child {
+            margin-left: 0;
         }
         .hero {
             height: 100vh;
@@ -384,8 +391,10 @@
 <body>
     <div class="header">
         <div class="logo">TravelPal</div>
-        <button class="login">Login</button>
-        <button class="find-traveler">Find a traveler</button>
+        <div class="button-group">
+            <button class="login">Login</button>
+            <button class="find-traveler">Find a traveler</button>
+        </div>
     </div>
     <div class="hero">
         <div class="hero-overlay"></div>
@@ -393,9 +402,10 @@
             <h1>Welcome to TravelPal</h1>
             <p>Connect with fellow travelers, share extra luggage space, and make new friends on your journeys.</p>
             <div class="search-box">
-                <input type="text" placeholder="Where do you want to send your package?">
-                <button>Search</button>
+                <input type="text" id="searchInput" placeholder="Search for travel destination">
+                <button onclick="searchCountry()">Search</button>
             </div>
+            <div id="searchResult" style="color: white; margin-top: 20px;"></div>
             <div id="arrow-down" class="arrow-down">&#x2193;</div>
         </div>
     </div>
@@ -407,12 +417,12 @@
         <div class="section stats">
             <div class="stat">
                 <i class="fas fa-suitcase"></i>
-                <h3>1000k+</</h3>
+                <h3>1000k+</h3>
                 <p>Travel matches made</p>
             </div>
             <div class="stat">
                 <i class="fas fa-map-marker-alt"></i>
-                <h3>5k+</h3>
+                <h3>5k+</</h3>
                 <p>Shipping Destinations</p>
             </div>
             <div class="stat">
@@ -501,11 +511,6 @@
                     <input type="checkbox" checked="checked"> Remember me on this device
                 </label>
             </form>
-            <!-- Not necessary for now -->
-            <!-- <div class="social-login">
-                <button type="button" class="facebook">Login with Facebook</button>
-                <button type="button" class="google">Login with Google</button>
-            </div> -->
             <div class="register-link">
                 <p>Don't have an account? <a href="javascript:void(0)" onclick="openRegisterModal()">Register here</a></p>
             </div>
@@ -535,7 +540,6 @@
                         <input type="checkbox" required> I agree to the <a style="margin-left:5px;" href="#">Terms and Conditions</a>
                     </label>
                 </form>
-               
                 <div class="login-link">
                     <p>Already have an account? <a href="javascript:void(0)" onclick="openLoginModal()">Login here</a></p>
                 </div>
@@ -606,6 +610,25 @@
         function openRegisterModal() {
             loginModal.style.display = "none";
             registerModal.style.display = "block";
+        }
+
+        function searchCountry() {
+            var searchInput = document.getElementById('searchInput').value.trim().toLowerCase();
+            var availableCountries = [
+                'cameroon', 'canada', 'france', 'ghana', 'kenya',
+                'london', 'nigeria', 'norway', 'south africa', 'usa'
+            ];
+            var resultMessage;
+
+            if (searchInput === '') {
+                resultMessage = "Please enter a country to search for travel options.";
+            } else if (availableCountries.includes(searchInput)) {
+                resultMessage = "Great! We have travel options and experiences available for " + searchInput.charAt(0).toUpperCase() + searchInput.slice(1) + ".";
+            } else {
+                resultMessage = "We're expanding our destinations! Unfortunately, " + searchInput.charAt(0).toUpperCase() + searchInput.slice(1) + " isn't available yet.";
+            }
+
+            document.getElementById('searchResult').textContent = resultMessage;
         }
     </script>
 </body>

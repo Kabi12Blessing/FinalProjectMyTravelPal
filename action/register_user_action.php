@@ -21,41 +21,60 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = sanitize_input($_POST["password"]);
         $confirm_password = sanitize_input($_POST["confirm_password"]);
 
+        // Initialize error messages array
+        $errors = [];
+
         // Validate form data
-        if (empty($username) || empty($email) || empty($password) || empty($confirm_password)) {
-            header("Location: ../login/register_view.php?error=" . urlencode("All fields are required."));
-            exit();
+        if (empty($username)) {
+            $errors[] = "Username is required.";
+        }
+        if (empty($email)) {
+            $errors[] = "Email is required.";
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Invalid email format.";
+        }
+        if (empty($password)) {
+            $errors[] = "Password is required.";
+        } elseif (!preg_match('/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{6,}$/', $password)) {
+            $errors[] = "Password must contain at least 6 characters, including at least one uppercase letter, one number, and one special character.";
+        }
+        if (empty($confirm_password)) {
+            $errors[] = "Confirm password is required.";
+        } elseif ($password !== $confirm_password) {
+            $errors[] = "Passwords do not match.";
         }
 
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            header("Location: ../login/register_view.php?error=" . urlencode("Invalid email format."));
-            exit();
+        // If there are no errors, proceed with user registration
+        if (empty($errors)) {
+            // Hash the password
+            $password_hash = password_hash($password, PASSWORD_BCRYPT);
+
+            // Prepare and execute query to insert user data
+            $stmt = $conn->prepare("INSERT INTO Users (username, email, password_hash) VALUES (:username, :email, :password_hash)");
+            $stmt->bindValue(':username', $username);
+            $stmt->bindValue(':email', $email);
+            $stmt->bindValue(':password_hash', $password_hash);
+
+            if ($stmt->execute()) {
+                // Registration successful, redirect to login page with success message
+                $_SESSION['success'] = "Registration successful. Please log in.";
+                header("Location: ../login/login_view.php");
+                exit();
+            } else {
+                $errors[] = "Registration failed. Please try again.";
+            }
         }
 
-        if ($password !== $confirm_password) {
-            header("Location: ../login/register_view.php?error=" . urlencode("Passwords do not match."));
-            exit();
-        }
-
-        // Hash the password
-        $password_hash = password_hash($password, PASSWORD_BCRYPT);
-
-        // Prepare and execute query to insert user data
-        $stmt = $conn->prepare("INSERT INTO Users (username, email, password_hash) VALUES (:username, :email, :password_hash)");
-        $stmt->bindValue(':username', $username);
-        $stmt->bindValue(':email', $email);
-        $stmt->bindValue(':password_hash', $password_hash);
-
-        if ($stmt->execute()) {
-            // Registration successful, redirect to login page with success message
-            header("Location: ../login/login_view.php?success=" . urlencode("Registration successful. Please log in."));
-            exit();
-        } else {
-            header("Location: ../login/register_view.php?error=" . urlencode("Registration failed. Please try again."));
+        // If there are errors, store them in session and redirect back to form
+        if (!empty($errors)) {
+            $_SESSION['errors'] = $errors;
+            $_SESSION['form_data'] = ['username' => $username, 'email' => $email];
+            header("Location: ../login/register_view.php");
             exit();
         }
     } else {
-        header("Location: ../login/register_view.php?error=" . urlencode("All fields are required."));
+        $_SESSION['errors'] = ["All fields are required."];
+        header("Location: ../login/register_view.php");
         exit();
     }
 }

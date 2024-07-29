@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['preference_id'])) {
 
     try {
         if ($stmt->execute()) {
-            echo 'success';
+            echo 'success'; // Make sure there's no extra space or line break
         } else {
             echo 'error';
         }
@@ -20,4 +20,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['preference_id'])) {
 } else {
     echo 'error';
 }
-?>

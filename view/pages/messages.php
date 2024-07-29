@@ -373,7 +373,7 @@ function convertPathToWeb($absolutePath) {
                                 <form method="POST" action="../../../MyTravelPal/action/delete_conversation.php" style="display:inline;">
                                     <input type="hidden" name="conversation_id" value="<?= htmlspecialchars($message['conversation_id']) ?>">
                                     <input type="hidden" name="preference_id" value="<?= htmlspecialchars($message['preference_id']) ?>">
-                                    <button type="submit" class="decline-button" onclick="return confirm('Are you sure you want to delete this conversation? This will remove all associated messages.')">Delete</button>
+                                    <button type="submit" class="decline-button" onclick="return confirm('Are you sure you want to delete this conversation? This will decline match and remove all associated messages.')">Decline and Delete</button>
                                 </form>
                             </div>
                         <?php else: ?>
@@ -391,7 +391,7 @@ function convertPathToWeb($absolutePath) {
                                 <form method="POST" action="../../../MyTravelPal/action/delete_conversation.php" style="display:inline;">
                                     <input type="hidden" name="conversation_id" value="<?= htmlspecialchars($message['conversation_id']) ?>">
                                     <input type="hidden" name="preference_id" value="<?= htmlspecialchars($message['preference_id']) ?>">
-                                    <button type="submit" class="decline-button" onclick="return confirm('Are you sure you want to delete this conversation? This will remove all associated messages.')">Delete</button>
+                                    <button type="submit" class="decline-button" onclick="return confirm('Are you sure you want to delete this conversation? This will decline match and remove all associated messages.')">Decline</button>
                                 </form>
                             </div>
                         <?php endif; ?>

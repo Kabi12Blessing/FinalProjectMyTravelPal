@@ -359,9 +359,10 @@ session_start();
             <h1>Welcome to TravelPal</h1>
             <p>Connect with fellow travelers, share extra luggage space, and make new friends on your journeys.</p>
             <div class="search-box">
-                <input type="text" placeholder="Where do you want to send your package?">
-                <button>Search</button>
+                <input type="text" id="searchInput" placeholder="Search for travel destination">
+                <button onclick="searchCountry()">Search</button>
             </div>
+            <div id="searchResult" style="color: white; margin-top: 20px;"></div>
             <div id="arrow-down" class="arrow-down">&#x2193;</div>
         </div>
     </div>
@@ -389,83 +390,50 @@ session_start();
         </div>
         <div style= "background: linear-gradient(to right, #1E90FF, #00BFFF); border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);" class="section">
-            <h2 >Popular Countries</h2>
+            <h2>Focus Countries</h2>
             <div class="categories">
                 <div class="category">
-                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/CAMEROON.png" alt="Country 1">
+                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/CAMEROON.png" alt="Cameroon">
                     <h3>Cameroon</h3>
                 </div>
                 <div class="category">
-                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/CANADA.png" alt="Country 2">
+                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/CANADA.png" alt="Canada">
                     <h3>Canada</h3>
                 </div>
                 <div class="category">
-                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/FRANCE.png" alt="Country 3">
+                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/FRANCE.png" alt="France">
                     <h3>France</h3>
                 </div>
                 <div class="category">
-                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/GHANA.png" alt="Country 4">
+                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/GHANA.png" alt="Ghana">
                     <h3>Ghana</h3>
                 </div>
                 <div class="category">
-                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/KENYA.png" alt="Country 5">
+                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/KENYA.png" alt="Kenya">
                     <h3>Kenya</h3>
                 </div>
                 <div class="category">
-                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/LONDON.png" alt="Country 2">
+                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/LONDON.png" alt="London">
                     <h3>London</h3>
                 </div>
                 <div class="category">
-                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/NIGERIA.png" alt="Country 3">
+                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/NIGERIA.png" alt="Nigeria">
                     <h3>Nigeria</h3>
                 </div>
                 <div class="category">
-                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/NORWAY.png" alt="Country 4">
+                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/NORWAY.png" alt="Norway">
                     <h3>Norway</h3>
                 </div>
                 <div class="category">
-                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/SOUTHAFRICA.png" alt="Country 5">
+                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/SOUTHAFRICA.png" alt="South Africa">
                     <h3>South Africa</h3>
                 </div>
                 <div class="category">
-                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/USA.png" alt="Country 5">
+                    <img src="https://rawcdn.githack.com/Kabi12Blessing/images/d7d6a83e4b8a3ee80df571c0f3299086d2b99847/USA.png" alt="USA">
                     <h3>USA</h3>
                 </div>
             </div>
         </div>
-        <!-- <div style= "background: linear-gradient(to right, #1E90FF, #80BFFF); border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);" class="section">
-            <h2> Travelling This Week</h2>
-            <div class="travelling-this-week">
-                <div class="travelling-item">
-                    <img src="traveller1.jpg" alt="Traveller 1">
-                    <h3>John Doe</h3>
-                    <p>Destination: New York</p>
-                </div>
-                <div class="travelling-item">
-                    <img src="traveller2.jpg" alt="Traveller 2">
-                    <h3>Jane Smith</h3>
-                    <p>Destination: Paris</p>
-                </div>
-                <div class="travelling-item">
-                    <img src="traveller3.jpg" alt="Traveller 3">
-                    <h3>Michael Johnson</h3>
-                    <p>Destination: Tokyo</p>
-                </div>
-                <div class="travelling-item">
-                    <img src="traveller4.jpg" alt="Traveller 4">
-                    <h3>Emily Davis</h3>
-                    <p>Destination: Sydney</p>
-                </div>
-                <div class="travelling-item">
-                    <img src="traveller5.jpg" alt="Traveller 5">
-                    <h3>Chris Lee</h3>
-                    <p>Destination: London</p>
-                </div>
-            </div>
-        </div> -->
-    </div>
-
     </div>
     <div class="newsletter-section">
         <div class="newsletter">
@@ -500,6 +468,17 @@ session_start();
                         openDropdown.style.display = 'none';
                     }
                 }
+            }
+        }
+
+        function searchCountry() {
+            var searchInput = document.getElementById('searchInput').value.toLowerCase();
+            var countries = ["cameroon", "canada", "france", "ghana", "kenya", "london", "nigeria", "norway", "south africa", "usa"];
+            var resultDiv = document.getElementById('searchResult');
+            if (countries.includes(searchInput)) {
+                resultDiv.innerText = "Great! We have travel options and experiences available for " + searchInput.charAt(0).toUpperCase() + searchInput.slice(1) + ".";
+            } else {
+                resultDiv.innerText = "We're expanding our destinations! Unfortunately, " + searchInput.charAt(0).toUpperCase() + searchInput.slice(1) + " isn't available yet.";
             }
         }
     </script>

@@ -235,6 +235,24 @@ function convertPathToWeb($absolutePath) {
         .sidebar a:hover {
             background-color: #0056b3;
         }
+        .trip-button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: left; /* Align text to the left to keep the original appearance */
+            display: block; /* Make the button span the full width */
+            width: 100%; /* Ensure full width of the parent container */
+            margin: 0; /* Remove default margin */
+        }
+
+        .trip-button:hover {
+            background-color: #0056b3;
+        }
+
         .main-content {
             margin-left: 250px;
             padding: 80px 20px 20px;
@@ -491,12 +509,12 @@ function convertPathToWeb($absolutePath) {
             </div>
         </div>
         <div class="section">
-            <h2>Upcoming Trips</h2>
+        <h2>Upcoming Trips</h2>
             <div id="upcomingTrips" class="dashboard-section">
                 <?php foreach ($upcomingTrips as $trip): ?>
-                    <div class="card">
+                    <div class="card" id="trip-<?= $trip['preference_id']; ?>">
                         <div class="card-content">
-                            <h3 onclick="toggleTripDetails(this)">Trip to <?= htmlspecialchars($countries[$trip['destination_country_id']]) ?></h3>
+                        <button class="trip-button" onclick="toggleTripDetails(this)">Trip to <?= htmlspecialchars($countries[$trip['destination_country_id']]) ?></button>
                             <div class="trip-details hidden">
                                 <p>Travelling from: <?= htmlspecialchars($countries[$trip['origin_country_id']]) ?></p>
                                 <p>To: <?= htmlspecialchars($countries[$trip['destination_country_id']]) ?></p>
@@ -513,12 +531,12 @@ function convertPathToWeb($absolutePath) {
                                 <button class="btn" onclick="openEditTripModal(<?= $trip['preference_id']; ?>)">Update</button>
                                 <button class="btn" onclick="deleteTrip(<?= $trip['preference_id']; ?>)">Delete</button>
                                 <button class="btn">Find a Travel Match</button>
-                                
                             </div>
                         </div>
                     </div>
                 <?php endforeach; ?>
             </div>
+
         </div>
         
         </div>
@@ -750,32 +768,64 @@ function convertPathToWeb($absolutePath) {
     </div>
 
     <script>
-         $(document).ready(function() {
-            $("#editTripForm").submit(function(event) {
-                event.preventDefault();
-                var formData = $(this).serialize();
-                console.log(formData); // Debugging: check the console to see the form data being sent
+         $("#editTripForm").submit(function(event) {
+            event.preventDefault();
+            var formData = $(this).serialize();
 
-                $.ajax({
-                    type: "POST",
-                    url: "../../action/edit_trip.php",
-                    data: formData,
-                    success: function(response) {
-                        console.log(response); // Debugging: check the response from the server
-                        if (response == "success") {
-                            alert("Trip updated successfully!");
-                            location.reload();
-                        } else {
-                            alert(response);
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error(xhr.responseText);
-                        alert("An error occurred while updating the trip.");
+            $.ajax({
+                type: "POST",
+                url: "../../action/edit_trip.php",
+                data: formData,
+                success: function(response) {
+                    if (response.trim() === "success") {
+                        var preferenceId = $('#edit_preference_id').val();
+                        var updatedTrip = {
+                            destination: $('#edit_destination_country option:selected').text(),
+                            origin: $('#edit_origin_country option:selected').text(),
+                            departure: $('#edit_departure_date').val(),
+                            return: $('#edit_return_date').val(),
+                            budget: $('#edit_budget').val(),
+                            description: $('#edit_description').val(),
+                            travelers: $('#edit_travelers').val(),
+                            accommodation: $('#edit_accommodation option:selected').text(),
+                            has_extra_space: $('input[name="space"]:checked').val() === 'has_extra_space' ? 'Yes' : 'No',
+                            needs_space: $('input[name="space"]:checked').val() === 'needs_extra_space' ? 'Yes' : 'No',
+                            preferences: $('input[name="gender"]:checked').val()
+                        };
+
+                        // Update the trip card content
+                        var tripCard = $('#trip-' + preferenceId);
+                        tripCard.find('h3').text('Trip to ' + updatedTrip.destination);
+                        tripCard.find('.trip-details').html(`
+                            <p>Travelling from: ${updatedTrip.origin}</p>
+                            <p>To: ${updatedTrip.destination}</p>
+                            <p>Departure: ${updatedTrip.departure}</p>
+                            <p>Return: ${updatedTrip.return}</p>
+                            <p>Description: ${updatedTrip.description}</p>
+                            <p>Budget: ${updatedTrip.budget}</p>
+                            <p>Travelers: ${updatedTrip.travelers}</p>
+                            <p>Accommodation: ${updatedTrip.accommodation}</p>
+                            <h3>Type of travelers I'm looking for</h3>
+                            <p>Has Extra Space: ${updatedTrip.has_extra_space}</p>
+                            <p>Needs Space: ${updatedTrip.needs_space}</p>
+                            <p>Preferred Gender: ${updatedTrip.preferences}</p>
+                            <button class="btn" onclick="openEditTripModal(${preferenceId})">Update</button>
+                            <button class="btn" onclick="deleteTrip(${preferenceId})">Delete</button>
+                        `);
+
+                        alert("Trip updated successfully!");
+                        closeEditTripModal();
+                    } else {
+                        alert("Failed to update trip: " + response);
                     }
-                });
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                    alert("An error occurred while updating the trip.");
+                }
             });
         });
+
         function editProfile() {
             document.getElementById('profileView').style.display = 'none';
             document.getElementById('profileEdit').style.display = 'block';
@@ -852,21 +902,15 @@ function convertPathToWeb($absolutePath) {
                     type: 'GET',
                     data: { preference_id: preferenceId },
                     success: function(response) {
-                        // Check the server response
-                        if (response === 'success') {
-                            // Select the trip element in the DOM
-                            const tripElement = document.getElementById('trip-' + preferenceId);
-                            console.log(tripElement); // Log the trip element to ensure it's found
-                            if (tripElement) {
-                                tripElement.remove(); // Remove the element from the DOM
-                                console.log('Trip element removed');
-                            }
+                        if (response.trim() === 'success') {
+                            $('#trip-' + preferenceId).remove();
                             alert('Trip deleted successfully');
                         } else {
                             alert('Failed to delete trip');
                         }
                     },
                     error: function(xhr, status, error) {
+                        console.error('AJAX Error:', error);
                         alert('An error occurred while deleting the trip.');
                     }
                 });
