@@ -41,16 +41,11 @@ try {
     exit();
 }
 
-// Function to convert absolute path to web-accessible relative path
-function convertPathToWeb($absolutePath) {
-    $documentRoot = '/Applications/XAMPP/xamppfiles/htdocs/';
-    $baseUrl = '/'; // Adjust this to your base URL if necessary
-
-    if (strpos($absolutePath, $documentRoot) === 0) {
-        return $baseUrl . substr($absolutePath, strlen($documentRoot));
-    }
-
-    return $absolutePath; // Return as is if it doesn't match
+// Function to convert relative path to web-accessible path
+function convertPathToWeb($relativePath) {
+    $baseUrl = '/MyTravelPal/'; // Adjust to your project's base URL
+    $relativePath = ltrim($relativePath, './');
+    return $baseUrl . $relativePath;
 }
 
 // Handle new message submission
@@ -78,7 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         // Insert the new message with the determined roles
-        $sql = "INSERT INTO Messages (conversation_id, sender_id, receiver_id, message_text, preference_id) VALUES (:conversation_id, :sender_id, :receiver_id, :message_text, :preference_id)";
+        $sql = "INSERT INTO Messages (conversation_id, sender_id, receiver_id, message_text, preference_id) 
+                VALUES (:conversation_id, :sender_id, :receiver_id, :message_text, :preference_id)";
         try {
             $stmt = $conn->prepare($sql);
             $stmt->bindValue(':conversation_id', $conversation_id, PDO::PARAM_STR);

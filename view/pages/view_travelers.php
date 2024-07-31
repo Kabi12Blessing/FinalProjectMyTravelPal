@@ -33,18 +33,14 @@ try {
     exit();
 }
 
-// Function to convert absolute path to web-accessible relative path
-function convertPathToWeb($absolutePath) {
-    $documentRoot = '/Applications/XAMPP/xamppfiles/htdocs/';
-    $baseUrl = '/'; // Adjust this to your base URL if necessary
-
-    if (strpos($absolutePath, $documentRoot) === 0) {
-        return $baseUrl . substr($absolutePath, strlen($documentRoot));
-    }
-
-    return $absolutePath; // Return as is if it doesn't match
+// Function to convert relative path to web-accessible path
+function convertPathToWeb($relativePath) {
+    $baseUrl = '/MyTravelPal/'; // Adjust to your project's base URL
+    $relativePath = ltrim($relativePath, './');
+    return $baseUrl . $relativePath;
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
