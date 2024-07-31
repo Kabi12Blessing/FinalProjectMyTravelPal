@@ -7,7 +7,7 @@ error_reporting(E_ALL);
 
 require '../settings/connection.php';
 
-// Check if user is logged in
+// Checking if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../login.php');
     exit();
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $needsSpace = isset($_POST['space']) && $_POST['space'] == 'needs_extra_space' ? 1 : 0;
     $preferredGender = $_POST['gender'];
 
-    // Validate inputs
+    // Validating inputs
     $errors = [];
     $today = date('Y-m-d');
 
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit();
     } catch (PDOException $e) {
         error_log('Query failed: ' . $e->getMessage()); // Log the error message
-        echo 'Error: ' . $e->getMessage(); // Optionally display the error
+        echo 'Error: ' . $e->getMessage(); // display the error, optional tho
         exit();
     }
 } else {

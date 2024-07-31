@@ -7,13 +7,13 @@ error_reporting(E_ALL);
 
 require '../../settings/connection.php';
 
-// Check if user is logged in
+// Checking if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit();
 }
 
-// Fetch user information from the database
+// Fetching the user information from the database
 $userInfo = [];
 $sql = "SELECT email, created_at, username, profile_picture FROM Users WHERE user_id = :user_id";
 try {
@@ -26,7 +26,7 @@ try {
     exit();
 }
 
-// Fetch countries from the database
+// Fetching countries too from the database
 $countries = [];
 $sql = "SELECT country_id, country_name FROM Countries";
 try {
@@ -39,7 +39,7 @@ try {
     exit();
 }
 
-// Fetch upcoming trips for the logged-in user
+// Fetching upcoming trips for the logged-in user with trips created
 $upcomingTrips = [];
 $sql = "SELECT * FROM Travel_Preferences WHERE user_id = :user_id ORDER BY travel_date DESC";
 try {
@@ -238,11 +238,9 @@ function convertPathToWeb($relativePath) {
             font-size: 16px;
             border-radius: 5px;
             cursor: pointer;
-            text-align: left; /* Align text to the left to keep the original appearance */
-            display: block; /* Make the button span the full width */
-            width: 100%; /* Ensure full width of the parent container */
-            margin: 0; /* Remove default margin */
-        }
+            display: block; 
+            width: 100%; 
+            margin: 0; 
 
         .trip-button:hover {
             background-color: #0056b3;
@@ -269,7 +267,7 @@ function convertPathToWeb($relativePath) {
             font-size: 28px;
             margin-bottom: 20px;
             color: var(--text-color);
-            cursor: pointer; /* Make the header look clickable */
+            cursor: pointer; /* ps: Makes the header look clickable */
         }
         .dark-mode .section h2 {
             color: var(--dark-text-color);

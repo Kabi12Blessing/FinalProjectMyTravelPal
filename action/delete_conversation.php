@@ -7,7 +7,7 @@ error_reporting(E_ALL);
 
 require '../settings/connection.php';
 
-// Check if user is logged in
+// Checking if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../login.php');
     exit();
@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $conversation_id = $_POST['conversation_id'];
     $preference_id = $_POST['preference_id'];
 
-    // Ensure that the user has the right to delete these messages
+    // Ensuring that the user has the right to delete these messages that is based on ids
     $user_id = $_SESSION['user_id'];
 
     $sql = "DELETE FROM Messages WHERE conversation_id = :conversation_id AND preference_id = :preference_id";
@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->bindParam(':preference_id', $preference_id, PDO::PARAM_INT);
         $stmt->execute();
         
-        // Redirect to messages page with success message
+        // and then Redirecting to messages page with success message
         header('Location: ../view/pages/messages.php?status=deleted');
         exit();
     } catch (PDOException $e) {

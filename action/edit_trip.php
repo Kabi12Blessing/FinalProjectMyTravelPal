@@ -11,15 +11,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['preference_id'])) {
     $preference_id = $_POST['preference_id'];
     $destination = isset($_POST['destination_country']) && is_numeric($_POST['destination_country']) ? (int)$_POST['destination_country'] : null;
     $origin = isset($_POST['origin_country']) && is_numeric($_POST['origin_country']) ? (int)$_POST['origin_country'] : null;
-    $departure_date = $_POST['departure_date'] ?? ''; // Ensure this matches the form name attribute
-    $return_date = $_POST['return_date'] ?? ''; // Ensure this matches the form name attribute
+    $departure_date = $_POST['departure_date'] ?? ''; // Ensuring that this matches the form name attribute
+    $return_date = $_POST['return_date'] ?? ''; // Ensuring that this matches the form name attribute too
     $description = $_POST['description'] ?? '';
     $budget = $_POST['budget'] ?? '';
     $travelers = $_POST['number_of_travelers'] ?? '';
     $accommodation = $_POST['accommodation_type'] ?? '';
     $has_extra_space = isset($_POST['space']) && $_POST['space'] == 'has_extra_space' ? 1 : 0;
     $needs_space = isset($_POST['space']) && $_POST['space'] == 'needs_extra_space' ? 1 : 0;
-    $preferred_gender = $_POST['gender'] ?? ''; // Ensure this matches the form name attribute
+    $preferred_gender = $_POST['gender'] ?? ''; // Ensuring this matches the form name attribute
 
     // Validate the presence of all required fields
     if ($destination === null || $origin === null || empty($departure_date) || empty($return_date) || empty($budget) || empty($travelers)) {

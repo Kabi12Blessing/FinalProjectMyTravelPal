@@ -13,15 +13,15 @@ function sanitize_input($data) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Check if username, email, password, and confirm_password are set
+    // Checking if username, email, password, and confirm_password are set
     if (isset($_POST["username"]) && isset($_POST["email"]) && isset($_POST["password"]) && isset($_POST["confirm_password"])) {
-        // Get form data
+        // Geting form data
         $username = sanitize_input($_POST["username"]);
         $email = sanitize_input($_POST["email"]);
         $password = sanitize_input($_POST["password"]);
         $confirm_password = sanitize_input($_POST["confirm_password"]);
 
-        // Initialize error messages array
+        // error messages array, initialized
         $errors = [];
 
         // Validate form data
@@ -65,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
 
-        // If there are errors, store them in session and redirect back to form
+        // If there are errors, make sure to store them in session and redirect back to form
         if (!empty($errors)) {
             $_SESSION['errors'] = $errors;
             $_SESSION['form_data'] = ['username' => $username, 'email' => $email];

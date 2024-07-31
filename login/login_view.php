@@ -25,7 +25,7 @@
             background-image: url('https://rawcdn.githack.com/BlessingLeslie/TravelPalImages/f3fa5a30650b6390c7e41a26ff7550836e3a6f24/DALL%C2%B7E%202024-06-11%2000.17.43%20-%20A%20highly%20realistic%20airport%20scene%20featuring%20two%20Black%20people.%20One%20person%20is%20sharing%20an%20item%20with%20another%20traveler%20who%20has%20extra%20luggage.%20The%20traveler%20i.webp');
             background-size: cover;
             background-position: center;
-            filter: brightness(1.0); /* Darken the image */
+            filter: brightness(1.0); 
             z-index: -1;
         }
 
@@ -35,7 +35,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7); /* Darker overlay */
+            background: rgba(0, 0, 0, 0.7); 
             z-index: -1;
         }
 

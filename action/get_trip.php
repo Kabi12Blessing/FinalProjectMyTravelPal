@@ -1,11 +1,11 @@
 <?php
-require '../settings/connection.php'; // Make sure this path is correct for your setup
+require '../settings/connection.php'; 
 
 if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET['preference_id'])) {
     $preference_id = $_GET['preference_id'];
 
     try {
-        // Fetch trip details from the database
+        // Fetching trip details from the database
         $stmt = $conn->prepare("SELECT * FROM Travel_Preferences WHERE preference_id = :id");
         $stmt->bindParam(':id', $preference_id, PDO::PARAM_INT);
         $stmt->execute();

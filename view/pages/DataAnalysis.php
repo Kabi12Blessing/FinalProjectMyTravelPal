@@ -15,7 +15,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch the total number of accepted matches for each origin-destination combination
+// Fetch the total number of accepted matches for each origin-destination combo
 $sql = "SELECT mt.origin_id, mt.destination_id, 
         c1.country_name AS origin_country, c2.country_name AS destination_country, 
         COUNT(mt.match_id) AS total_matches

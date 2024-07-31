@@ -6,7 +6,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 require '../settings/connection.php';
 
-// Check if user is logged in
+// Checking if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../login.php');
     exit();

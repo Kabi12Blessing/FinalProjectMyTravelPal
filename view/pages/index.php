@@ -355,7 +355,7 @@
 
         .modal-body .social-login button {
             width: 48%;
-            background-color: #3b5998; /* Facebook color */
+            background-color: #3b5998; /* Facebook color *, no longer needed, should remove/
             color: white;
         }
 
