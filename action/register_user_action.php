@@ -1,30 +1,25 @@
 <?php
 session_start();
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 
-// Including database connection file
 require_once '../settings/connection.php';
 
-// Function to sanitize user input
 function sanitize_input($data) {
     return htmlspecialchars(stripslashes(trim($data)));
 }
 
+header('Content-Type: application/json');
+
+$response = [];
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Checking if username, email, password, and confirm_password are set
     if (isset($_POST["username"]) && isset($_POST["email"]) && isset($_POST["password"]) && isset($_POST["confirm_password"])) {
-        // Geting form data
         $username = sanitize_input($_POST["username"]);
         $email = sanitize_input($_POST["email"]);
         $password = sanitize_input($_POST["password"]);
         $confirm_password = sanitize_input($_POST["confirm_password"]);
 
-        // error messages array, initialized
         $errors = [];
 
-        // Validate form data
         if (empty($username)) {
             $errors[] = "Username is required.";
         }
@@ -44,38 +39,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $errors[] = "Passwords do not match.";
         }
 
-        // If there are no errors, proceed with user registration
         if (empty($errors)) {
-            // Hash the password
             $password_hash = password_hash($password, PASSWORD_BCRYPT);
 
-            // Prepare and execute query to insert user data
-            $stmt = $conn->prepare("INSERT INTO Users (username, email, password_hash) VALUES (:username, :email, :password_hash)");
-            $stmt->bindValue(':username', $username);
-            $stmt->bindValue(':email', $email);
-            $stmt->bindValue(':password_hash', $password_hash);
+            try {
+                $stmt = $conn->prepare("INSERT INTO Users (username, email, password_hash) VALUES (:username, :email, :password_hash)");
+                $stmt->bindValue(':username', $username);
+                $stmt->bindValue(':email', $email);
+                $stmt->bindValue(':password_hash', $password_hash);
 
-            if ($stmt->execute()) {
-                // Registration successful, redirect to login page with success message
-                $_SESSION['success'] = "Registration successful. Please log in.";
-                header("Location: ../login/login_view.php");
-                exit();
-            } else {
-                $errors[] = "Registration failed. Please try again.";
+                if ($stmt->execute()) {
+                    $response['success'] = true;
+                    $response['message'] = "Registration successful. Please log in.";
+                } else {
+                    $errors[] = "Registration failed. Please try again.";
+                }
+            } catch (PDOException $e) {
+                $errors[] = "Database error: " . $e->getMessage();
             }
         }
 
-        // If there are errors, make sure to store them in session and redirect back to form
         if (!empty($errors)) {
-            $_SESSION['errors'] = $errors;
-            $_SESSION['form_data'] = ['username' => $username, 'email' => $email];
-            header("Location: ../login/register_view.php");
-            exit();
+            $response['success'] = false;
+            $response['errors'] = $errors;
         }
     } else {
-        $_SESSION['errors'] = ["All fields are required."];
-        header("Location: ../login/register_view.php");
-        exit();
+        $response['success'] = false;
+        $response['errors'] = ["All fields are required."];
     }
+} else {
+    $response['success'] = false;
+    $response['errors'] = ["Invalid request method."];
 }
+
+echo json_encode($response);
 ?>
