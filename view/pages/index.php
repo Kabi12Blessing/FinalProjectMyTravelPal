@@ -355,7 +355,7 @@
 
         .modal-body .social-login button {
             width: 48%;
-            background-color: #3b5998; /* Facebook color *, no longer needed, should remove/
+            background-color: #3b5998; /* Facebook color */
             color: white;
         }
 
@@ -383,6 +383,35 @@
 
         .modal-footer a:hover {
             text-decoration: underline;
+        }
+
+        /* Custom Popup */
+        .custom-popup {
+            display: none;
+            position: fixed;
+            z-index: 1002;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .custom-popup p {
+            margin: 0 0 20px;
+        }
+        .custom-popup button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .custom-popup button:hover {
+            background-color: #0056b3;
         }
     </style>
     <script src="https://kit.fontawesome.com/a076d05399.js"></script>
@@ -417,7 +446,7 @@
         <div class="section stats">
             <div class="stat">
                 <i class="fas fa-suitcase"></i>
-                <h3>1000k+</h3>
+                <h3>1000k+</</h3>
                 <p>Travel matches made</p>
             </div>
             <div class="stat">
@@ -530,7 +559,7 @@
                 <h2>TravelPal Register</h2>
             </div>
             <div class="modal-body">
-                <form action="/MyTravelPal/action/register_user_action.php" method="POST">
+                <form id="registerForm">
                     <input type="text" name="username" placeholder="Username" required>
                     <input type="email" name="email" placeholder="Email" required>
                     <input type="password" name="password" placeholder="Password" required>
@@ -540,6 +569,8 @@
                         <input type="checkbox" required> I agree to the <a style="margin-left:5px;" href="#">Terms and Conditions</a>
                     </label>
                 </form>
+                <div id="responseMessage"></div>
+                
                 <div class="login-link">
                     <p>Already have an account? <a href="javascript:void(0)" onclick="openLoginModal()">Login here</a></p>
                 </div>
@@ -548,6 +579,12 @@
                 <a href="#">Need help?</a>
             </div>
         </div>
+    </div>
+
+    <!-- Custom Popup -->
+    <div id="customPopup" class="custom-popup">
+        <p id="customPopupMessage"></p>
+        <button onclick="closeCustomPopup()">OK</button>
     </div>
 
     <script>
@@ -610,6 +647,41 @@
         function openRegisterModal() {
             loginModal.style.display = "none";
             registerModal.style.display = "block";
+        }
+
+        document.getElementById("registerForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            var formData = new FormData(this);
+
+            fetch('/MyTravelPal/action/register_user_action.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                var responseMessage = document.getElementById('responseMessage');
+                if (data.success) {
+                    showCustomPopup(data.message);
+                    document.getElementById("registerForm").reset();
+                } else {
+                    responseMessage.innerHTML = '<p style="color: red;">' + data.errors.join('<br>') + '</p>';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        function showCustomPopup(message) {
+            var popup = document.getElementById('customPopup');
+            var messageElement = document.getElementById('customPopupMessage');
+            messageElement.textContent = message;
+            popup.style.display = 'block';
+        }
+
+        function closeCustomPopup() {
+            var popup = document.getElementById('customPopup');
+            popup.style.display = 'none';
+            openLoginModal();
         }
 
         function searchCountry() {
